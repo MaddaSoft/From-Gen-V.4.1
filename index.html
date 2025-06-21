@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maddasoft Production Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa; --card-bg: #ffffff; --text-primary: #1f2937;
+            --text-secondary: #4b5563; --border-color: #e5e7eb; --primary-500: #6366f1;
+            --primary-600: #4f46e5; --primary-700: #4338ca; --secondary-500: #6b7280;
+            --secondary-600: #4b5563; --success-500: #10b981; --warning-500: #f59e0b;
+            --danger-500: #ef4444;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); }
+        .form-section { background-color: var(--card-bg); padding: 1.5rem 2rem; border-radius: 1rem; box-shadow: 0 8px 16px -4px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+        .form-label { font-weight: 600; color: var(--text-secondary); font-size: 0.875rem; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 0.65rem 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; transition: all 0.2s ease-in-out; background-color: #f9fafb; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary-500); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); background-color: white; }
+        .other-input { margin-top: 0.75rem; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 0.5rem; font-weight: 700; color: white; cursor: pointer; transition: all 0.2s ease-in-out; border: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04); transform: translateY(0); }
+        .btn:disabled { background-color: #d1d5db; background-image: none; cursor: not-allowed; }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
+        .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
+        .btn-primary { background-image: linear-gradient(to right, var(--primary-500), var(--primary-600)); } 
+        .btn-primary:hover:not(:disabled) { background-image: linear-gradient(to right, var(--primary-600), var(--primary-700)); }
+        .btn-secondary { background-color: var(--secondary-500); } .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-600); }
+        .btn-success { background-color: var(--success-500); } .btn-success:hover:not(:disabled) { background-color: #059669; }
+        .btn-warning { background-color: var(--warning-500); } .btn-warning:hover:not(:disabled) { background-color: #d97706; }
+        .btn-danger { background-color: var(--danger-500); } .btn-danger:hover:not(:disabled) { background-color: #dc2626; }
+        .profile-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-radius: 0.75rem; background-color: #f9fafb; border: 1px solid var(--border-color); transition: all 0.2s; }
+        .profile-item:hover { border-color: var(--primary-500); transform: translateX(4px); }
+        .tab-switcher { border-bottom: 2px solid var(--border-color); }
+        .tab-btn { background-color: transparent; color: var(--text-secondary); font-weight: 600; padding: 0.75rem 1rem; border-bottom: 3px solid transparent; transition: all 0.2s ease-in-out; margin-bottom: -2px; }
+        .tab-btn:hover { color: var(--primary-500); }
+        .tab-btn.active { color: var(--primary-600); border-bottom-color: var(--primary-600); }
+        .tab-content { display: none; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes animate-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .animated-gradient-text { background-size: 300% auto; animation: animate-gradient 8s ease infinite; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .header-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease-in-out; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content { background: white; padding: 2rem; border-radius: 1rem; width: 90%; max-width: 450px; text-align: center; transform: scale(0.9); transition: all 0.3s ease-in-out; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1001; display: flex; flex-direction: column; gap: 0.5rem; }
+        .toast { background-color: var(--text-primary); color: white; padding: 0.75rem 1.25rem; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateX(100%); animation: slideIn 0.5s forwards; }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        #imageResultContainer { background-color: #e5e7eb; border-radius: 1rem; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #imageResult { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--primary-500); border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Marquee Animation */
+        .marquee-container {
+            width: 100%;
+            overflow-x: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee-scroll 10s linear infinite;
+        }
+        @keyframes marquee-scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+
+    <!-- MODAL & TOAST UI -->
+    <div id="toastContainer" class="toast-container"></div>
+    <div id="confirmationModal" class="modal-overlay">
+        <div class="modal-content space-y-4">
+            <h3 id="modalTitle" class="text-xl font-bold">Konfirmasi Aksi</h3>
+            <p id="modalMessage">Apakah Anda yakin ingin melanjutkan?</p>
+            <div class="flex justify-center gap-4 pt-2">
+                <button id="modalConfirmBtn" class="btn btn-danger">Ya, Lanjutkan</button>
+                <button id="modalCancelBtn" class="btn btn-secondary">Batal</button>
+            </div>
+        </div>
+    </div>
+    <input type="file" id="importFile" class="hidden" accept=".json">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="header-title text-4xl md:text-5xl animated-gradient-text bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                MaddaSoft Production
+            </h1>
+            <div class="marquee-container mt-3">
+                <p class="marquee-text text-lg text-slate-500 font-medium">Prompt Gen Pro V 4.1</p>
+            </div>
+             <div class="mt-4 flex justify-center gap-3">
+                <button id="exportBtn" class="btn btn-secondary" title="Unduh semua data proyek (karakter, lokasi, dll) sebagai satu file .json.">Download</button>
+                <button id="importBtn" class="btn btn-warning" title="Unggah file .json untuk menimpa dan memuat proyek yang ada.">Upload</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Kolom Manajemen Aset -->
+            <div class="form-section space-y-6">
+                <!-- TAB SWITCHER -->
+                <div class="flex tab-switcher">
+                    <button id="characterTabBtn" class="tab-btn">Karakter</button>
+                    <button id="nonHumanTabBtn" class="tab-btn">Non-Human</button>
+                    <button id="locationTabBtn" class="tab-btn">Lokasi</button>
+                </div>
+                <!-- All Form Content -->
+                <div id="characterCreator" class="tab-content">
+                    <form id="characterCreationForm">
+                        <fieldset class="space-y-6">
+                            <div><h2 id="formTitle" class="text-2xl font-bold">Buat Karakter Baru</h2></div>
+                            <div><h3 class="text-lg font-semibold text-gray-700">1. Identitas</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2"><input type="text" id="charName" class="form-input" placeholder="Nama Karakter (Wajib)"><select id="charGender" class="form-select"><option value="pria">Pria</option><option value="wanita">Wanita</option></select><input type="number" id="charAge" class="form-input" placeholder="Usia"><div data-dependency-container>
+                                <select id="charOrigin" class="form-select feature-select">
+                                    <option value="">-- Pilih Etnisitas --</option><option value="Asia Tenggara (Indonesia, Melayu)">Asia Tenggara</option><option value="Asia Timur (Cina, Jepang, Korea)">Asia Timur</option><option value="Asia Selatan (India, Pakistan)">Asia Selatan</option><option value="Kaukasia / Eropa Utara">Kaukasia / Eropa Utara</option><option value="Mediterania (Italia, Yunani)">Mediterania</option><option value="Slavia / Eropa Timur">Slavia / Eropa Timur</option><option value="Timur Tengah / Arab">Timur Tengah / Arab</option><option value="Afrika Sub-Sahara">Afrika Sub-Sahara</option><option value="Afrika Utara">Afrika Utara</option><option value="Hispanik / Latin">Hispanik / Latin</option><option value="Pribumi Amerika">Pribumi Amerika</option><option value="Kepulauan Pasifik">Kepulauan Pasifik</option><option value="Yahudi Ashkenazi">Yahudi Ashkenazi</option><option value="Persia">Persia</option><option value="Peranakan (Campuran)">Peranakan (Campuran)</option><option value="other">Lainnya...</option>
+                                </select><input type="text" id="charOriginOther" class="form-input other-input hidden" placeholder="Etnisitas kustom"></div></div></div>
+                            <div><h3 class="text-lg font-semibold text-gray-700">2. Fisik</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 mt-2">
+                                <div data-dependency-container><label class="form-label">Kulit</label><select id="charSkin" class="form-select feature-select"><option value="">-- Tekstur --</option><option value="mulus dan bersih">Mulus & Bersih</option><option value="pucat">Pucat</option><option value="sawo matang">Sawo Matang</option><option value="gelap">Gelap</option><option value="berminyak">Berminyak</option><option value="kering">Kering</option><option value="dengan pori-pori terlihat">Pori-pori Terlihat</option><option value="dengan sedikit bintik (freckles)">Sedikit Bintik</option><option value="dengan bekas luka tipis">Bekas Luka Tipis</option><option value="agak kasar">Agak Kasar</option><option value="dengan kerutan halus">Kerutan Halus</option><option value="bersih tapi lelah">Bersih Tapi Lelah</option><option value="terawat baik">Terawat Baik</option><option value="kusam">Kusam</option><option value="bercahaya (glowing)">Bercahaya</option><option value="other">Lainnya...</option></select><input type="text" id="charSkinOther" class="form-input other-input hidden"></div>
+                                <div data-dependency-container><label class="form-label">Tubuh</label><select id="charBody" class="form-select feature-select"><option value="">-- Bentuk --</option><option value="atletis dan proporsional">Atletis</option><option value="kurus dan tinggi (ectomorph)">Kurus & Tinggi</option><option value="berisi dan gempal (endomorph)">Berisi & Gempal</option><option value="sangat berotot (mesomorph)">Sangat Berotot</option><option value="ramping dan lentur">Ramping & Lentur</option><option value="pendek dan kokoh">Pendek & Kokoh</option><option value="sedikit bungkuk">Sedikit Bungkuk</option><option value="postur tegap">Postur Tegap</option><option value="rata-rata">Rata-rata</option><option value="agak gemuk">Agak Gemuk</option><option value="sangat kurus">Sangat Kurus</option><option value="berlekuk (curvy)">Berlekuk</option><option value="lebar di bahu">Lebar di Bahu</option><option value="kecil dan mungil">Kecil & Mungil</option><option value="besar dan tinggi">Besar & Tinggi</option><option value="other">Lainnya...</option></select><input type="text" id="charBodyOther" class="form-input other-input hidden"></div>
+                                <div data-dependency-container><label class="form-label">Wajah</label><select id="charFaceShape" class="form-select feature-select"><option value="">-- Bentuk --</option><option value="oval">Oval</option><option value="bulat dengan pipi tembem">Bulat</option><option value="persegi dengan rahang tegas">Persegi & Tegas</option><option value="berbentuk hati dengan dagu runcing">Bentuk Hati</option><option value="panjang dan tirus">Panjang & Tirus</option><option value="berlian dengan tulang pipi tinggi">Berlian</option><option value="segitiga">Segitiga</option><option value="wajah lelah dengan kantung mata">Lelah</option><option value="simetris">Simetris</option><option value="wajah ramah">Ramah</option><option value="wajah keras">Keras</option><option value="berlesung pipi">Berlesung Pipi</option><option value="wajah sempit">Sempit</option><option value="wajah lebar">Lebar</option><option value="berdagu belah">Dagu Belah</option><option value="other">Lainnya...</option></select><input type="text" id="charFaceShapeOther" class="form-input other-input hidden"></div>
+                                <div data-dependency-container><label class="form-label">Alis</label><select id="charEyebrows" class="form-select feature-select"><option value="">-- Bentuk --</option><option value="tebal dan lurus">Tebal & Lurus</option><option value="tipis dan melengkung tajam">Tipis & Melengkung</option><option value="alami dan sedikit berantakan">Alami</option><option value="lurus dan rata">Lurus & Rata</option><option value="rapi dan terpelihara">Rapi</option><option value="berkerut di tengah">Berkerut</option><option value="hampir tidak terlihat">Hampir Tak Terlihat</option><option value="melengkung lembut">Lengkung Lembut</option><option value="lebat">Lebat</option><option value="berwarna gelap">Warna Gelap</option><option value="berwarna terang">Warna Terang</option><option value="bercabang di ujung">Bercabang</option><option value="menukik tajam">Menukik Tajam</option><option value="simetris">Simetris</option><option value="menyatu tipis (unibrow)">Menyatu Tipis</option><option value="other">Lainnya...</option></select><input type="text" id="charEyebrowsOther" class="form-input other-input hidden"></div>
+                                <div data-dependency-container><label class="form-label">Mata</label><select id="charEyes" class="form-select feature-select"><option value="">-- Warna & Bentuk --</option><option value="cokelat tua yang tajam">Cokelat Tua Tajam</option><option value="hitam pekat dan bulat">Hitam Bulat</option><option value="biru jernih">Biru Jernih</option><option value="hijau zamrud">Hijau Zamrud</option><option value="abu-abu seperti baja">Abu-abu Baja</option><option value="sipit (almond)">Sipit (Almond)</option><option value="sayu dan lelah">Sayu & Lelah</option><option value="berbinar dan ceria">Berbinar & Ceria</option><option value="dengan tatapan dingin">Tatapan Dingin</option><option value="dengan bulu mata lentik">Bulu Mata Lentik</option><option value="agak juling (cross-eyed)">Agak Juling</option><option value="memiliki kantung mata">Kantung Mata</option><option value="satu mata berbeda warna (heterochromia)">Heterochromia</option><option value="dalam dan menusuk">Dalam & Menusuk</option><option value="terbuka lebar dan polos">Terbuka Lebar</option><option value="other">Lainnya...</option></select><input type="text" id="charEyesOther" class="form-input other-input hidden"></div>
+                                <div data-dependency-container><label class="form-label">Rambut</label><select id="charHair" class="form-select feature-select"></select><input type="text" id="charHairOther" class="form-input other-input hidden"></div>
+                                <div id="facialHairContainer" data-dependency-container><label class="form-label">Rambut Wajah</label><select id="charFacialHair" class="form-select feature-select"><option value="">-- Pilihan --</option><option value="dicukur bersih">Bersih</option><option value="jenggot tipis (stubble)">Stubble</option><option value="kumis tebal">Kumis Tebal</option><option value="jenggot penuh dan rapi">Jenggot Penuh</option><option value="cambang (sideburns)">Cambang</option><option value="goatee">Goatee</option><option value="tidak terawat">Tidak Terawat</option><option value="other">Lainnya...</option></select><input type="text" id="charFacialHairOther" class="form-input other-input hidden"></div>
+                                <div class="sm:col-span-2"><label class="form-label">Tato</label><div class="grid grid-cols-2 gap-2"><input type="text" id="charTattooDesc" class="form-input" placeholder="Deskripsi..."><input type="text" id="charTattooLoc" class="form-input" placeholder="...di lokasi ini."></div></div></div></div>
+                            <div><h3 class="text-lg font-semibold text-gray-700">3. Suara</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2"><div data-dependency-container><label class="form-label">Ciri Suara</label><select id="charVoice" class="form-select feature-select"><option value="">-- Pilihan --</option><option value="dalam dan berat (deep)">Dalam & Berat</option><option value="bernada tinggi (high-pitched)">Bernada Tinggi</option><option value="lembut dan pelan">Lembut & Pelan</option><option value="serak (raspy)">Serak</option><option value="jelas dan tegas">Jelas & Tegas</option><option value="sengau (nasal)">Sengau</option><option value="merdu (melodious)">Merdu</option><option value="parau (hoarse)">Parau</option><option value="berwibawa">Berwibawa</option><option value="gugup dan terbata-bata">Gugup</option><option value="monoton">Monoton</option><option value="bersemangat">Bersemangat</option><option value="berbisik">Berbisik</option><option value="menggelegar (booming)">Menggelegar</option><option value="cempreng (shrill)">Cempreng</option><option value="other">Lainnya...</option></select><input type="text" id="charVoiceOther" class="form-input other-input hidden"></div><div data-dependency-container><label class="form-label">Aksen</label><select id="charAccent" class="form-select feature-select"><option value="">-- Pilihan --</option><option value="netral / standar">Netral / Standar</option><option value="British (RP)">British (RP)</option><option value="American (General)">American (General)</option><option value="American (Southern)">American (Southern)</option><option value="Jawa Medok">Jawa</option><option value="Sunda">Sunda</option><option value="Batak">Batak</option><option value="Melayu">Melayu</option><option value="Betawi">Betawi</option><option value="Australia">Australia</option><option value="Rusia">Rusia</option><option value="Prancis">Prancis</option><option value="Italia">Italia</option><option value="Jepang">Jepang</option><option value="India">India</option><option value="other">Lainnya...</option></select><input type="text" id="charAccentOther" class="form-input other-input hidden"></div></div></div>
+                            <div><h3 class="text-lg font-semibold text-gray-700">4. Perilaku</h3><textarea id="charCoreBehavior" class="form-textarea mt-2" rows="3" placeholder="Kepribadian, postur, ekspresi, kebiasaan khas..."></textarea></div>
+                            <div><h3 class="text-lg font-semibold text-gray-700">5. Pakaian</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 mt-2"><div class="sm:col-span-2" data-dependency-container><label class="form-label">Gaya</label><select id="gayaKeseluruhan" class="form-select feature-select"><option value="">-- Pilihan --</option><option value="kasual modern">Kasual Modern</option><option value="formal bisnis">Formal Bisnis</option><option value="streetwear">Streetwear</option><option value="vintage">Vintage</option><option value="bohemian">Bohemian</option><option value="gothic">Gothic</option><option value="preppy">Preppy</option><option value="sporty">Sporty</option><option value="petualang (adventure-core)">Petualang</option><option value="minimalis">Minimalis</option><option value="elegan">Elegan</option><option value="punk">Punk</option><option value="futuristik">Futuristik</option><option value="tradisional">Tradisional</option><option value="acak-acakan (sloppy)">Acak-acakan</option><option value="other">Lainnya...</option></select><input type="text" id="gayaKeseluruhanOther" class="form-input other-input hidden"></div><div data-dependency-container><label class="form-label">Atasan</label><select id="pakaianAtasan" class="form-select feature-select"><option value="">-- Pilihan --</option><option value="kaos katun">Kaos Katun</option><option value="kemeja flanel">Kemeja Flanel</option><option value="hoodie fleece">Hoodie Fleece</option><option value="jaket kulit">Jaket Kulit</option><option value="blazer wol">Blazer Wol</option><option value="tank top">Tank Top</option><option value="sweater rajut">Sweater Rajut</option><option value="polo shirt">Polo Shirt</option><option value="kemeja sutra">Kemeja Sutra</option><option value="jaket denim">Jaket Denim</option><option value="rompi">Rompi</option><option value="blus sifon (wanita)">Blus Sifon</option><option value="turtleneck">Turtleneck</option><option value="crop top (wanita)">Crop Top</option><option value="long coat">Long Coat</option><option value="other">Lainnya...</option></select><input type="text" id="pakaianAtasanOther" class="form-input other-input hidden"></div><div data-dependency-container><label class="form-label">Bawahan</label><select id="pakaianBawahan" class="form-select feature-select"><option value="">-- Pilihan --</option><option value="celana jeans denim">Celana Jeans</option><option value="celana kargo kanvas">Celana Kargo</option><option value="celana bahan katun">Celana Bahan</option><option value="celana pendek">Celana Pendek</option><option value="rok mini kulit">Rok Mini Kulit</option><option value="rok panjang katun">Rok Panjang</option><option value="legging">Legging</option><option value="celana jogger">Celana Jogger</option><option value="celana chino">Celana Chino</option><option value="celana kulit">Celana Kulit</option><option value="overall denim">Overall</option><option value="celana formal">Celana Formal</option><option value="sarung">Sarung</option><option value="celana training">Celana Training</option><option value="skort (rok-celana)">Skort</option><option value="other">Lainnya...</option></select><input type="text" id="pakaianBawahanOther" class="form-input other-input hidden"></div><div class="sm:col-span-2" data-dependency-container><label class="form-label">Aksesori</label><select id="aksesori" class="form-select feature-select"><option value="">-- Pilihan --</option><option value="kacamata hitam">Kacamata Hitam</option><option value="jam tangan digital">Jam Tangan Digital</option><option value="jam tangan analog kulit">Jam Tangan Analog</option><option value="kalung rantai perak">Kalung Rantai Perak</option><option value="topi baseball">Topi Baseball</option><option value="topi beanie">Topi Beanie</option><option value="syal rajut">Syal Rajut</option><option value="anting perak">Anting Perak</option><option value="cincin batu akik">Cincin Batu Akik</option><option value="gelang kulit">Gelang Kulit</option><option value="ransel kanvas">Ransel Kanvas</option><option value="headphone di leher">Headphone</option><option value="dasi">Dasi</option><option value="ikat pinggang kulit">Ikat Pinggang</option><option value="piercing hidung">Piercing Hidung</option><option value="other">Lainnya...</option></select><input type="text" id="aksesoriOther" class="form-input other-input hidden"></div></div></div>
+                            <div class="pt-2"><button type="submit" id="formSubmitBtn" class="btn btn-lg btn-primary w-full">Simpan Karakter Baru</button><button type="button" id="cancelEditBtn" class="btn btn-lg btn-secondary hidden mt-2 w-full">Batal Edit</button></div>
+                        </fieldset>
+                    </form>
+                    <div class="pt-6 border-t mt-6"><h2 class="text-xl font-semibold mb-4">Karakter Tersimpan</h2><div id="characterList" class="space-y-2"><p id="noProfilesMessage" class="text-slate-500">Belum ada karakter.</p></div></div>
+                </div>
+                <div id="nonHumanCreator" class="tab-content">
+                     <form id="nonHumanCreationForm">
+                        <fieldset class="space-y-4">
+                            <div><h2 id="nhFormTitle" class="text-2xl font-bold">Buat Karakter Non-Human Baru</h2></div>
+                            <input type="text" id="nhName" class="form-input" placeholder="Nama/Jenis Makhluk (Wajib)">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                               <div data-dependency-container><label class="form-label">Tipe Makhluk</label><select id="nhType" class="form-select feature-select"><option value="">-- Pilih Tipe --</option><option value="Humanoid">Humanoid</option><option value="Hewan Fantasi">Hewan Fantasi</option><option value="Robot/Android">Robot/Android</option><option value="Monster/Aberasi">Monster</option><option value="Alien">Alien</option><option value="Roh/Hantu">Roh/Hantu</option><option value="Makhluk Mitologi">Mitologi</option><option value="other">Lainnya...</option></select><input type="text" id="nhTypeOther" class="form-input other-input hidden"></div>
+                               <div data-dependency-container><label class="form-label">Ukuran</label><select id="nhSize" class="form-select feature-select"><option value="">-- Pilih Ukuran --</option><option value="Kecil">Kecil (kucing)</option><option value="Sedang">Sedang (manusia)</option><option value="Besar">Besar (mobil)</option><option value="Raksasa">Raksasa (bangunan)</option><option value="other">Lainnya...</option></select><input type="text" id="nhSizeOther" class="form-input other-input hidden"></div>
+                            </div>
+                            <div><label class="form-label">Ciri Fisik Khas</label><textarea id="nhFeatures" class="form-textarea" rows="3" placeholder="Contoh: Kulit bersisik hijau, mata menyala merah, empat lengan..."></textarea></div>
+                            <div><label class="form-label">Kemampuan/Kekuatan</label><textarea id="nhAbilities" class="form-textarea" rows="2" placeholder="Contoh: Bisa terbang, menyemburkan api, telepati..."></textarea></div>
+                            <div><label class="form-label">Sifat & Perilaku</label><select id="nhBehavior" class="form-select"><option value="">-- Pilih Sifat --</option><option value="Buas dan teritorial">Buas & Teritorial</option><option value="Cerdas dan ingin tahu">Cerdas & Ingin Tahu</option><option value="Setia dan protektif">Setia & Protektif</option><option value="Kacau dan tak terduga">Kacau & Tak Terduga</option><option value="Bijaksana dan kuno">Bijaksana & Kuno</option></select></div>
+                             <div class="pt-2"><button type="submit" id="nhFormSubmitBtn" class="btn btn-lg btn-primary w-full">Simpan Karakter Non-Human</button><button type="button" id="nhCancelEditBtn" class="btn btn-lg btn-secondary hidden mt-2 w-full">Batal Edit</button></div>
+                        </fieldset>
+                    </form>
+                    <div class="pt-6 border-t mt-6"><h2 class="text-xl font-semibold mb-4">Non-Human Tersimpan</h2><div id="nonHumanList" class="space-y-2"><p id="noNonHumansMessage" class="text-slate-500">Belum ada karakter non-human.</p></div></div>
+                </div>
+                <div id="locationCreator" class="tab-content">
+                    <form id="locationCreationForm">
+                        <fieldset class="space-y-4">
+                             <div><h2 id="locFormTitle" class="text-2xl font-bold">Buat Lokasi Baru</h2></div>
+                             <input type="text" id="locName" class="form-input" placeholder="Nama Lokasi (Wajib)">
+                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div data-dependency-container><label class="form-label">Jenis Lokasi</label><select id="locType" class="form-select feature-select"><option value="">-- Pilih Jenis --</option><option value="Kafe Modern">Kafe Modern</option><option value="Perpustakaan Tua">Perpustakaan Tua</option><option value="Apartemen Mewah">Apartemen Mewah</option><option value="Pasar Malam Ramai">Pasar Malam Ramai</option><option value="Hutan Belantara">Hutan Belantara</option><option value="Pantai Tropis">Pantai Tropis</option><option value="Stasiun Kereta Bawah Tanah">Stasiun Kereta</option><option value="Laboratorium Futuristik">Laboratorium</option><option value="Kastil Abad Pertengahan">Kastil</option><option value="Rooftop Bar Perkotaan">Rooftop Bar</option><option value="Gudang Terbengkalai">Gudang</option><option value="Ruang Tahta Kerajaan">Ruang Tahta</option><option value="Planet Asing">Planet Asing</option><option value="Dek Kapal Luar Angkasa">Kapal Luar Angkasa</option><option value="Kamar Hotel Murah">Kamar Hotel</option><option value="other">Lainnya...</option></select><input type="text" id="locTypeOther" class="form-input other-input hidden"></div>
+                                <div data-dependency-container><label class="form-label">Era / Waktu</label><select id="locEra" class="form-select feature-select"><option value="">-- Pilih Era --</option><option value="Masa Kini - Siang Hari">Masa Kini - Siang</option><option value="Masa Kini - Malam Hari">Masa Kini - Malam</option><option value="Masa Kini - Senja">Masa Kini - Senja</option><option value="Futuristik (Cyberpunk)">Futuristik</option><option value="Pasca-Apokaliptik">Pasca-Apokaliptik</option><option value="Abad Pertengahan">Abad Pertengahan</option><option value="Era Victoria">Era Victoria</option><option value="Wild West">Wild West</option><option value="Tahun 1980-an">1980-an</option><option value="Tahun 1990-an">1990-an</option><option value="Zaman Batu">Zaman Batu</option><option value="Mesir Kuno">Mesir Kuno</option><option value="Kerajaan Romawi">Romawi</option><option value="Steampunk">Steampunk</option><option value="other">Lainnya...</option></select><input type="text" id="locEraOther" class="form-input other-input hidden"></div>
+                                <div data-dependency-container class="sm:col-span-2"><label class="form-label">Atmosfer</label><select id="locAtmosphere" class="form-select feature-select"><option value="">-- Pilih Atmosfer --</option><option value="Hangat dan Nyaman">Hangat & Nyaman</option><option value="Misterius dan Gelap">Misterius & Gelap</option><option value="Tegang dan Mencekam">Tegang & Mencekam</option><option value="Cerah dan Ceria">Cerah & Ceria</option><option value="Megah dan Agung">Megah & Agung</option><option value="Melankolis dan Sepi">Melankolis & Sepi</option><option value="Kacau dan Ramai">Kacau & Ramai</option><option value="Ajaib dan Magis">Ajaib & Magis</option><option value="Tenang dan Damai">Tenang & Damai</option><option value="Industri dan Kotor">Industri & Kotor</option><option value="Mewah dan Elegan">Mewah & Elegan</option><option value="Menyeramkan (Eerie)">Menyeramkan</option><option value="Nostalgia dan Retro">Nostalgia & Retro</option><option value="Sureal dan Aneh">Sureal & Aneh</option><option value="Rusak dan Terbengkalai">Rusak & Terbengkalai</option><option value="other">Lainnya...</option></select><input type="text" id="locAtmosphereOther" class="form-input other-input hidden"></div>
+                             </div>
+                             <div><label class="form-label">Elemen Kunci Konsisten (Pisahkan dengan koma)</label><textarea id="locElements" class="form-textarea" rows="3" placeholder="Contoh: sofa kulit merah, jendela besar"></textarea></div>
+                             <div class="pt-2"><button type="submit" id="locFormSubmitBtn" class="btn btn-lg btn-primary w-full">Simpan Lokasi Baru</button><button type="button" id="locCancelEditBtn" class="btn btn-lg btn-secondary hidden mt-2 w-full">Batal Edit</button></div>
+                        </fieldset>
+                    </form>
+                    <div class="pt-6 border-t mt-6"><h2 class="text-xl font-semibold mb-4">Lokasi Tersimpan</h2><div id="locationList" class="space-y-2"><p id="noLocationsMessage" class="text-slate-500">Belum ada lokasi.</p></div></div>
+                </div>
+            </div>
+            
+            <div class="space-y-8">
+                <!-- TAHAP 2: GENERATOR ADEGAN -->
+                <div class="form-section space-y-4">
+                     <h2 class="text-2xl font-bold">Generator Adegan</h2>
+                     <div class="pt-2">
+                        <label class="form-label">1. Pilih Aktor</label>
+                        <div id="actorSelectorContainer" class="space-y-2 mt-2">
+                            <div class="flex items-center space-x-2 actor-row">
+                                <select class="form-select actor-select"><option value="">-- Aktor 1 --</option></select>
+                            </div>
+                        </div>
+                        <button type="button" id="addActorBtn" class="btn btn-secondary mt-3 text-sm">+ Tambah Aktor</button>
+                     </div>
+                     <div><label for="sceneLocationSelect" class="form-label">2. Pilih Lokasi</label><select id="sceneLocationSelect" class="form-select mt-2"><option value="">-- Lokasi --</option></select></div>
+                     <div class="pt-2">
+                         <h3 class="text-lg font-semibold text-gray-700">3. Sinematografi & Gaya</h3>
+                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                             <div><label for="sceneStyle" class="form-label">Gaya Visual</label><select id="sceneStyle" class="form-select"><option value="photorealistic, 8k, cinematic">Fotorealistik</option><option value="3d animation, pixar style">Animasi 3D</option><option value="2d cartoon, anime style">Kartun 2D</option><option value="noir film style, black and white">Film Noir</option><option value="vaporwave aesthetic, neon glow">Vaporwave / Retro</option><option value="documentary style, natural lighting">Gaya Dokumenter</option><option value="epic fantasy film, vibrant colors">Fantasi Epik</option></select></div>
+                             <div><label for="cameraMovement" class="form-label">Gerakan Kamera</label><select id="cameraMovement" class="form-select"><option value="static shot">Static (Diam)</option><option value="panning shot">Panning (Menoleh)</option><option value="tilting shot">Tilting (Mendongak)</option><option value="tracking shot">Tracking (Mengikuti)</option><option value="dolly in">Dolly In (Maju)</option><option value="crane shot">Crane Shot (Naik/Turun)</option><option value="handheld camera">Handheld (Genggam)</option></select></div>
+                         </div>
+                     </div>
+                     <div><label for="sceneAction" class="form-label">4. Deskripsi Adegan (Dialog tidak akan diterjemahkan)</label><textarea id="sceneAction" class="form-textarea mt-2" rows="4" placeholder="Contoh: Arka tersenyum pada Naga Api dan berkata, 'Akhirnya kita bertemu.'"></textarea>
+                        <div id="durationWarningBar" class="hidden mt-2 p-3 flex items-center text-sm text-yellow-800 rounded-lg bg-yellow-50" role="alert">
+                          <svg class="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/></svg>
+                          <span class="font-medium">Peringatan!</span> Deskripsi adegan panjang berpotensi menghasilkan video >8 detik.
+                        </div>
+                     </div>
+                     <button id="generateSceneBtn" class="btn btn-lg btn-success w-full">Buat Prompt Adegan</button>
+                </div>
+
+                <div class="form-section space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Hasil Prompt (ID & EN)</h3>
+                         <div class="grid grid-cols-2 gap-2">
+                             <textarea id="outputPromptId" class="form-textarea w-full bg-slate-50 text-sm" readonly rows="8" placeholder="Hasil prompt ID..."></textarea>
+                             <textarea id="outputPromptEn" class="form-textarea w-full bg-slate-50 text-sm" readonly rows="8" placeholder="Hasil prompt EN..."></textarea>
+                         </div>
+                         <div class="flex gap-2 mt-2">
+                            <button id="copyBtnId" class="btn btn-secondary">Salin ID</button>
+                            <button id="copyBtnEn" class="btn btn-secondary">Copy EN</button>
+                         </div>
+                    </div>
+                    <div class="pt-4 border-t">
+                        <h2 class="text-2xl font-bold mb-4">Visualisasi Adegan AI</h2>
+                        <div id="imageResultContainer">
+                            <span id="imagePlaceholder" class="text-slate-500">Hasil gambar akan muncul di sini...</span>
+                            <img id="imageResult" class="hidden" alt="Hasil Gambar AI">
+                            <div id="imageLoader" class="hidden loader"></div>
+                        </div>
+                        <button id="visualizeBtn" class="btn btn-lg btn-primary w-full mt-4 flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wand-2"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L11.8 9.2a1.21 1.21 0 0 0 0 1.72l8.84 8.84a1.21 1.21 0 0 0 1.72 0l1.28-1.28a1.21 1.21 0 0 0 0-1.72zM11 4H5a2 2 0 0 0-2 2v6M14 7l1 1M6 13l1 1M5 22v-2M3 20h2M20 3h2M22 5v2M14 17v2M12 19h2"/></svg>
+                            <span>Visualisasikan Adegan</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ELEMENT SELECTORS
+            const el = {
+                toastContainer: document.getElementById('toastContainer'),
+                modal: document.getElementById('confirmationModal'),
+                modalTitle: document.getElementById('modalTitle'),
+                modalMessage: document.getElementById('modalMessage'),
+                modalConfirmBtn: document.getElementById('modalConfirmBtn'),
+                modalCancelBtn: document.getElementById('modalCancelBtn'),
+                importFile: document.getElementById('importFile'),
+                exportBtn: document.getElementById('exportBtn'),
+                importBtn: document.getElementById('importBtn'),
+                charTabBtn: document.getElementById('characterTabBtn'), locTabBtn: document.getElementById('locationTabBtn'), nonHumanTabBtn: document.getElementById('nonHumanTabBtn'),
+                charCreatorDiv: document.getElementById('characterCreator'), locCreatorDiv: document.getElementById('locationCreator'), nonHumanCreatorDiv: document.getElementById('nonHumanCreator'),
+                charForm: document.getElementById('characterCreationForm'), locForm: document.getElementById('locationCreationForm'), nonHumanForm: document.getElementById('nonHumanCreationForm'),
+                charFormTitle: document.getElementById('formTitle'), nhFormTitle: document.getElementById('nhFormTitle'), locFormTitle: document.getElementById('locFormTitle'),
+                charSubmitBtn: document.getElementById('formSubmitBtn'), nhSubmitBtn: document.getElementById('nhFormSubmitBtn'), locSubmitBtn: document.getElementById('locFormSubmitBtn'),
+                cancelEditBtn: document.getElementById('cancelEditBtn'), nhCancelEditBtn: document.getElementById('nhCancelEditBtn'), locCancelEditBtn: document.getElementById('locCancelEditBtn'),
+                charListDiv: document.getElementById('characterList'), locListDiv: document.getElementById('locationList'), nonHumanListDiv: document.getElementById('nonHumanList'),
+                noProfilesMsg: document.getElementById('noProfilesMessage'), noLocationsMsg: document.getElementById('noLocationsMessage'), noNonHumansMsg: document.getElementById('noNonHumansMessage'),
+                sceneLocSelect: document.getElementById('sceneLocationSelect'),
+                generateSceneBtn: document.getElementById('generateSceneBtn'), outputId: document.getElementById('outputPromptId'),
+                outputEn: document.getElementById('outputPromptEn'), copyBtnId: document.getElementById('copyBtnId'), copyBtnEn: document.getElementById('copyBtnEn'),
+                actorSelectorContainer: document.getElementById('actorSelectorContainer'), addActorBtn: document.getElementById('addActorBtn'),
+                sceneActionTextarea: document.getElementById('sceneAction'), durationWarningBar: document.getElementById('durationWarningBar'),
+                visualizeBtn: document.getElementById('visualizeBtn'),
+                imageResultContainer: document.getElementById('imageResultContainer'),
+                imagePlaceholder: document.getElementById('imagePlaceholder'),
+                imageResult: document.getElementById('imageResult'),
+                imageLoader: document.getElementById('imageLoader'),
+            };
+
+            // APP STATE
+            let characters = [], locations = [], nonHumans = [];
+            let editingCharacterId = null, editingLocationId = null, editingNonHumanId = null;
+            const APP_VERSION = '4.1';
+            const CHAR_KEY = `veo3_hub_chars_v${APP_VERSION}`;
+            const LOC_KEY = `veo3_hub_locs_v${APP_VERSION}`;
+            const NH_KEY = `veo3_hub_nh_v${APP_VERSION}`;
+            const DURATION_THRESHOLD = 120;
+            
+            // --- UTILITY FUNCTIONS ---
+            function showToast(message) {
+                const toast = document.createElement('div'); toast.className = 'toast';
+                toast.textContent = message; el.toastContainer.appendChild(toast);
+                setTimeout(() => { toast.remove(); }, 3000);
+            }
+            let resolveConfirm;
+            function showConfirmation(title, message) {
+                el.modalTitle.textContent = title; el.modalMessage.textContent = message;
+                el.modal.classList.add('visible');
+                return new Promise(resolve => { resolveConfirm = resolve; });
+            }
+            function showAlert(message) {
+                 showConfirmation('Peringatan', message).then(confirmed => {});
+                 el.modalConfirmBtn.classList.add('hidden'); el.modalCancelBtn.textContent = 'Tutup';
+            }
+            function hideModal() {
+                el.modal.classList.remove('visible'); el.modalConfirmBtn.classList.remove('hidden');
+                el.modalCancelBtn.textContent = 'Batal';
+            }
+            el.modalConfirmBtn.addEventListener('click', () => { if(resolveConfirm) resolveConfirm(true); hideModal(); });
+            el.modalCancelBtn.addEventListener('click', () => { if(resolveConfirm) resolveConfirm(false); hideModal(); });
+            function getVal(id) { const el = document.getElementById(id); if (!el) return ''; return el.classList.contains('feature-select') ? (el.value === 'other' ? document.getElementById(id + 'Other').value.trim() : el.value.trim()) : el.value.trim(); }
+            function getCharacterData() { let data = {}; ['charName', 'charGender', 'charAge', 'charOrigin', 'charSkin', 'charBody', 'charFaceShape', 'charEyebrows', 'charEyes', 'charHair', 'charFacialHair', 'charTattooDesc', 'charTattooLoc', 'charVoice', 'charAccent', 'charCoreBehavior', 'gayaKeseluruhan', 'pakaianAtasan', 'pakaianBawahan', 'aksesori'].forEach(id => { data[id] = getVal(id); }); return data; }
+            function getNonHumanData() { let data = {}; ['nhName', 'nhType', 'nhSize', 'nhFeatures', 'nhAbilities', 'nhBehavior'].forEach(id => { data[id] = getVal(id); }); return data; }
+            function getLocationData() { let data = {}; ['locName', 'locType', 'locEra', 'locAtmosphere', 'locElements'].forEach(id => { data[id] = getVal(id); }); return data; }
+
+            // --- BLUEPRINT GENERATION ---
+            function generateBlueprintStrings(data, lang) {
+                const T = { id: { p: 'Cetak biru fisik', v: 'Cetak biru suara', b: 'Cetak biru perilaku', c: 'Pakaian khas', s: 'Adegan', m: 'seorang pria', f: 'seorang wanita', age: `berusia ${data.charAge} tahun`, name: data.charName ? `bernama ${data.charName}` : '', o: `keturunan ${data.charOrigin}`, sk: `kulit ${data.charSkin}`, bd: `tubuh ${data.charBody}`, fc: `wajah ${data.charFaceShape}`, eb: `alis ${data.charEyebrows}`, ey: `mata ${data.charEyes}`, hr: `rambut ${data.charHair}`, fh: `dan ${data.charFacialHair}`, tt: `memiliki tato ${data.charTattooDesc} di ${data.charTattooLoc || 'tubuhnya'}`, vd: `memiliki suara ${data.charVoice} dengan aksen ${data.charAccent}`, cs: `bergaya ${data.gayaKeseluruhan}`, ci: `mengenakan ${data.pakaianAtasan} dan ${data.pakaianBawahan}`, ac: `dilengkapi ${data.aksesori}`}, en: { p: 'Physical blueprint', v: 'Voice blueprint', b: 'Behavioral blueprint', c: 'Signature outfit', s: 'Scene', m: 'a man', f: 'a woman', age: `${data.charAge} years old`, name: data.charName ? `named ${data.charName}` : '', o: `of ${data.charOrigin} descent`, sk: `${data.charSkin} skin`, bd: `an ${data.charBody} build`, fc: `an ${data.charFaceShape} face`, eb: `${data.charEyebrows} eyebrows`, ey: `${data.charEyes} eyes`, hr: `${data.charHair} hair`, fh: `and is ${data.charFacialHair}`, tt: `with a tattoo of ${data.charTattooDesc} on his/her ${data.charTattooLoc || 'body'}`, vd: `with a ${data.charVoice} voice and a ${data.charAccent} accent`, cs: `${data.gayaKeseluruhan} style`, ci: `wearing a ${data.pakaianAtasan} and ${data.pakaianBawahan}`, ac: `accessorized with ${data.aksesori}`} }[lang];
+                const basicTraits = [data.charGender === 'pria' ? T.m : T.f, T.age, T.name].filter(Boolean).join(', ');
+                let physicalDetails = [T.o, T.sk, T.bd, T.fc, T.eb, T.ey, T.hr];
+                if (data.charGender === 'pria' && data.charFacialHair) physicalDetails.push(T.fh);
+                if (data.charTattooDesc) physicalDetails.push(T.tt);
+                const clothing = `${T.cs}, ${T.ci}`;
+                return { type: 'human', name: data.charName, physical: `${T.p}: ${basicTraits}, ${physicalDetails.join(', ')}.`, voice: `${T.v}: ${T.vd}.`, behavior: data.charCoreBehavior ? `${T.b}: ${data.charCoreBehavior}.` : '', clothing: `${T.c}: ${clothing}${data.aksesori && data.aksesori !== 'tidak ada' ? `, ${T.ac}.` : '.'}`, scenePrefix: T.s };
+            }
+            function generateNonHumanBlueprint(data, lang) {
+                const T = { id: { p: 'Cetak biru makhluk', n: data.nhName, t: data.nhType, sz: data.nhSize, ft: data.nhFeatures, ab: data.nhAbilities, bh: data.nhBehavior }, en: { p: 'Creature blueprint', n: data.nhName, t: data.nhType, sz: data.nhSize, ft: data.nhFeatures, ab: data.nhAbilities, bh: data.nhBehavior } }[lang];
+                const id_text = `Cetak biru makhluk: Sebuah ${T.t} bernama "${T.n}". Ukuran: ${T.sz}. Ciri khas: ${T.ft}. Kemampuan: ${T.ab}. Sifat: ${T.bh}.`;
+                const en_text = `Creature blueprint: A ${T.t.toLowerCase()} named "${T.n}". Size: ${T.sz.toLowerCase()}. Traits: ${T.ft}. Abilities: ${T.ab}. Behavior: ${T.bh}.`;
+                const text = lang === 'id' ? id_text : en_text;
+                return { type: 'non-human', name: T.n, physical: text };
+            }
+            function getLocationBlueprint(data, lang) {
+                const name = data.locName, type = data.locType || 'tempat', atmosphere = data.locAtmosphere || 'normal', elements = data.locElements, era = data.locEra || 'Modern';
+                const id_text = `Cetak biru lokasi: sebuah ${type} di era ${era}, bernama "${name}", dengan atmosfer ${atmosphere}. Elemen kunci: ${elements}.`;
+                const en_text = `Location blueprint: a ${type.toLowerCase()} from the ${era} era, named "${name}", with a ${atmosphere.toLowerCase()} atmosphere. Key elements: ${elements}.`;
+                return lang === 'id' ? id_text : en_text;
+            }
+            
+            // --- FORM & UI MANAGEMENT ---
+            function populateForm(formId, data) {
+                const formElement = document.getElementById(formId);
+                Object.keys(data).forEach(key => {
+                    const el = formElement.querySelector(`#${key}`); if (!el) return;
+                    if (el.classList.contains('feature-select')) {
+                        const otherInput = document.getElementById(key + 'Other');
+                        const optionExists = [...el.options].some(opt => opt.value === data[key]);
+                        if (optionExists || data[key] === '') { el.value = data[key]; if(otherInput) { otherInput.classList.add('hidden'); otherInput.value = ''; } } 
+                        else { el.value = 'other'; if(otherInput) { otherInput.value = data[key]; otherInput.classList.remove('hidden'); } }
+                    } else { el.value = data[key]; }
+                });
+                if (formId === 'characterCreationForm') updateFormForGender(data.charGender || 'pria');
+            }
+            function setFormMode(type, mode, name = '') {
+                const titles = { char: 'Karakter', nh: 'Non-Human', loc: 'Lokasi' };
+                const formTitle = document.getElementById(`${type}FormTitle`);
+                const submitBtn = document.getElementById(`${type}FormSubmitBtn`) || document.getElementById('formSubmitBtn');
+                const cancelBtn = document.getElementById(`${type}CancelEditBtn`);
+                const formEl = document.getElementById(`${type}CreationForm`);
+                if (mode === 'edit') {
+                    if (formTitle) formTitle.textContent = `Mengedit ${titles[type]}: ${name}`;
+                    if (submitBtn) { submitBtn.textContent = `Perbarui Aset`; submitBtn.classList.replace('btn-primary', 'btn-success'); }
+                    if (cancelBtn) cancelBtn.classList.remove('hidden');
+                } else {
+                    if (type === 'char') editingCharacterId = null; else if (type === 'loc') editingLocationId = null; else if (type === 'nh') editingNonHumanId = null;
+                    if(formTitle) formTitle.textContent = `Buat ${titles[type]} Baru`;
+                    if(submitBtn) { submitBtn.textContent = `Simpan ${titles[type]} Baru`; submitBtn.classList.replace('btn-success', 'btn-primary'); }
+                    if(cancelBtn) cancelBtn.classList.add('hidden'); if(formEl) formEl.reset();
+                    document.querySelectorAll('.other-input').forEach(i => i.classList.add('hidden'));
+                    if (type === 'char') updateFormForGender(document.getElementById('charGender').value);
+                }
+            }
+            function renderAllLists() {
+                const render = (list, container, noMsg, type) => {
+                    container.innerHTML = ''; noMsg.classList.toggle('hidden', list.length > 0);
+                    list.forEach(item => {
+                        const div = document.createElement('div'); div.className = 'profile-item';
+                        div.innerHTML = `<span class="font-medium flex-grow">${item.name}</span><div class="flex-shrink-0 space-x-2"><button class="btn btn-sm btn-warning edit-btn" data-type="${type}" data-id="${item.id}">Edit</button><button class="btn btn-sm btn-danger delete-btn" data-type="${type}" data-id="${item.id}">Hapus</button></div>`;
+                        container.appendChild(div);
+                    });
+                }
+                render(characters, el.charListDiv, el.noProfilesMsg, 'char'); render(nonHumans, el.nonHumanListDiv, el.noNonHumansMsg, 'nh'); render(locations, el.locListDiv, el.noLocationsMsg, 'loc');
+                resetActorSelectors();
+            }
+            function createActorSelect() {
+                const select = document.createElement('select'); select.className = 'form-select actor-select';
+                const charOptGroup = document.createElement('optgroup'); charOptGroup.label = "Karakter Human";
+                characters.forEach(c => charOptGroup.appendChild(new Option(c.name, `char-${c.id}`))); select.appendChild(charOptGroup);
+                const nhOptGroup = document.createElement('optgroup'); nhOptGroup.label = "Karakter Non-Human";
+                nonHumans.forEach(c => nhOptGroup.appendChild(new Option(c.name, `nh-${c.id}`))); select.appendChild(nhOptGroup);
+                select.insertBefore(new Option('-- Pilih Aktor --', ''), select.firstChild); return select;
+            }
+            function addActorSelector() {
+                const container = document.createElement('div'); container.className = 'flex items-center space-x-2 actor-row'; container.appendChild(createActorSelect());
+                const removeBtn = document.createElement('button'); removeBtn.type = 'button'; removeBtn.innerHTML = '&#x2715;';
+                removeBtn.className = 'remove-actor-btn text-red-500 hover:text-red-700 font-bold'; container.appendChild(removeBtn);
+                el.actorSelectorContainer.appendChild(container);
+            }
+            function resetActorSelectors() {
+                el.actorSelectorContainer.innerHTML = ''; addActorSelector(); el.sceneLocSelect.innerHTML = '<option value="">-- Lokasi --</option>';
+                locations.forEach(loc => el.sceneLocSelect.add(new Option(loc.name, loc.id)));
+            }
+            el.addActorBtn.addEventListener('click', addActorSelector);
+            el.actorSelectorContainer.addEventListener('click', e => { if (e.target.classList.contains('remove-actor-btn')) { if (el.actorSelectorContainer.querySelectorAll('.actor-row').length > 1) e.target.closest('.actor-row').remove(); } });
+            function switchTab(activeTabId) {
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none'); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(activeTabId).style.display = 'block'; document.getElementById(activeTabId.replace('Creator', 'TabBtn')).classList.add('active');
+            }
+            el.charTabBtn.addEventListener('click', () => switchTab('characterCreator')); el.locTabBtn.addEventListener('click', () => switchTab('locationCreator')); el.nonHumanTabBtn.addEventListener('click', () => switchTab('nonHumanCreator'));
+            
+            // --- DATA MANAGEMENT ---
+            function exportData() {
+                const allData = {
+                    appVersion: APP_VERSION,
+                    characters: characters,
+                    nonHumans: nonHumans,
+                    locations: locations
+                };
+                const dataStr = JSON.stringify(allData, null, 2);
+                const blob = new Blob([dataStr], {type: "application/json"});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `proyek_hub_data_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Proyek berhasil diekspor!');
+            }
+
+            function importData(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const confirmed = await showConfirmation(
+                        'Impor Proyek?', 
+                        'Aksi ini akan menimpa semua data yang ada saat ini. Pastikan Anda sudah mengekspor data Anda saat ini jika diperlukan. Lanjutkan?'
+                    );
+
+                    if (!confirmed) {
+                        el.importFile.value = ''; // Reset file input
+                        return;
+                    }
+
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.appVersion && data.characters && data.nonHumans && data.locations) {
+                            characters = data.characters;
+                            nonHumans = data.nonHumans;
+                            locations = data.locations;
+                            localStorage.setItem(CHAR_KEY, JSON.stringify(characters));
+                            localStorage.setItem(NH_KEY, JSON.stringify(nonHumans));
+                            localStorage.setItem(LOC_KEY, JSON.stringify(locations));
+                            renderAllLists();
+                            showToast('Proyek berhasil diimpor!');
+                        } else {
+                            showAlert('File tidak valid atau format data salah.');
+                        }
+                    } catch (error) {
+                        showAlert('Gagal membaca file. Pastikan file berformat JSON yang benar.');
+                        console.error("Import error:", error);
+                    } finally {
+                         el.importFile.value = ''; // Reset file input
+                    }
+                };
+                reader.readAsText(file);
+            }
+            el.exportBtn.addEventListener('click', exportData);
+            el.importBtn.addEventListener('click', () => el.importFile.click());
+            el.importFile.addEventListener('change', importData);
+
+            // --- EVENT LISTENERS ---
+            function handleFormSubmit(e, type) {
+                 e.preventDefault(); const name = getVal(`${type}Name`); if (!name) { showAlert(`Nama aset wajib diisi.`); return; }
+                 let list, key, editingId, formData; const isUpdate = (type === 'char' && editingCharacterId) || (type === 'nh' && editingNonHumanId) || (type === 'loc' && editingLocationId);
+                 if(type === 'char') { [list, key, editingId] = [characters, CHAR_KEY, editingCharacterId]; formData = getCharacterData(); }
+                 else if(type === 'nh') { [list, key, editingId] = [nonHumans, NH_KEY, editingNonHumanId]; formData = getNonHumanData(); }
+                 else { [list, key, editingId] = [locations, LOC_KEY, editingLocationId]; formData = getLocationData(); }
+                 const id = editingId || Date.now(); const index = list.findIndex(c => c.id == id); const record = { id, name, rawData: formData };
+                 if (index > -1) list[index] = record; else list.push(record);
+                 localStorage.setItem(key, JSON.stringify(list)); renderAllLists(); setFormMode(type, 'create'); showToast(`Aset berhasil ${isUpdate ? 'diperbarui' : 'disimpan'}!`);
+            }
+            el.charForm.addEventListener('submit', (e) => handleFormSubmit(e, 'char')); el.nonHumanForm.addEventListener('submit', (e) => handleFormSubmit(e, 'nh')); el.locForm.addEventListener('submit', (e) => handleFormSubmit(e, 'loc'));
+            el.cancelEditBtn.addEventListener('click', () => setFormMode('char', 'create')); el.nhCancelEditBtn.addEventListener('click', () => setFormMode('nh', 'create')); el.locCancelEditBtn.addEventListener('click', () => setFormMode('loc', 'create'));
+            el.generateSceneBtn.addEventListener('click', () => {
+                const selectedActorIds = Array.from(el.actorSelectorContainer.querySelectorAll('.actor-select')).map(s => s.value).filter(Boolean);
+                const locId = el.sceneLocSelect.value; if (selectedActorIds.length === 0 || !locId) { showAlert('Silakan pilih minimal satu aktor dan satu lokasi.'); return; }
+                let blueprintsId = [], blueprintsEn = [];
+                selectedActorIds.forEach(actorIdString => {
+                    const [type, id] = actorIdString.split('-'); const source = type === 'char' ? characters : nonHumans; const actor = source.find(c => c.id == id);
+                    if (actor) { const bpFunc = type === 'char' ? generateBlueprintStrings : generateNonHumanBlueprint; const bpDataId = bpFunc(actor.rawData, 'id'); const bpDataEn = bpFunc(actor.rawData, 'en');
+                        blueprintsId.push(Object.values(bpDataId).slice(1).join(' ')); blueprintsEn.push(Object.values(bpDataEn).slice(1).join(' ')); }
+                });
+                const location = locations.find(l => l.id == locId); if (!location) return;
+                const cinematicDesc = `${getVal('sceneStyle')}, ${getVal('cameraMovement')}`; const commonScene = getVal('sceneAction') ? `: ${getVal('sceneAction')}` : '.';
+                el.outputId.value = [cinematicDesc, ...blueprintsId, getLocationBlueprint(location.rawData, 'id'), `Adegan${commonScene}`].filter(Boolean).join('\n\n');
+                el.outputEn.value = [cinematicDesc, ...blueprintsEn, getLocationBlueprint(location.rawData, 'en'), `Scene${commonScene}`].filter(Boolean).join('\n\n');
+                showToast('Prompt adegan berhasil dibuat!');
+            });
+            el.visualizeBtn.addEventListener('click', async () => {
+                const prompt = el.outputEn.value; if (!prompt) { showAlert('Harap buat prompt adegan terlebih dahulu sebelum memvisualisasikannya.'); return; }
+                el.imagePlaceholder.classList.add('hidden'); el.imageResult.classList.add('hidden'); el.imageLoader.classList.remove('hidden'); el.visualizeBtn.disabled = true;
+                try {
+                    const payload = { instances: [{ prompt: prompt }], parameters: { "sampleCount": 1 } }; const apiKey = ""; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                    const result = await response.json();
+                    if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                        const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                        el.imageResult.src = imageUrl; el.imageResult.classList.remove('hidden'); showToast('Gambar berhasil divisualisasikan!');
+                    } else { throw new Error('Respons API tidak valid atau tidak mengandung gambar.'); }
+                } catch (error) {
+                    console.error("Error generating image:", error); showAlert('Gagal memvisualisasikan gambar. Silakan coba lagi.');
+                    el.imagePlaceholder.classList.remove('hidden');
+                } finally { el.imageLoader.classList.add('hidden'); el.visualizeBtn.disabled = false; }
+            });
+            document.body.addEventListener('click', async (e) => {
+                if(e.target.matches('.delete-btn')) {
+                    const id = e.target.dataset.id; const type = e.target.dataset.type;
+                    const confirmed = await showConfirmation('Hapus Aset?', 'Aksi ini tidak dapat dibatalkan. Anda yakin ingin menghapus aset ini?');
+                    if(confirmed) {
+                        const data = {char: [characters, CHAR_KEY], nh: [nonHumans, NH_KEY], loc: [locations, LOC_KEY]};
+                        let [list, key] = data[type]; const updatedList = list.filter(item => item.id != id);
+                        if(type === 'char') characters = updatedList; else if(type === 'nh') nonHumans = updatedList; else if(type === 'loc') locations = updatedList;
+                        localStorage.setItem(key, JSON.stringify(updatedList)); renderAllLists(); showToast('Aset berhasil dihapus.');
+                    }
+                } else if (e.target.matches('.edit-btn')) {
+                    const id = e.target.dataset.id; const type = e.target.dataset.type;
+                    const data = {char: [characters, 'character', 'char'], nh: [nonHumans, 'nonHuman', 'nh'], loc: [locations, 'location', 'loc']};
+                    const [list, formIdPrefix, modePrefix] = data[type]; const item = list.find(i => i.id == id);
+                    if (item) {
+                        if (type === 'char') editingCharacterId = id; else if (type === 'nh') editingNonHumanId = id; else if (type === 'loc') editingLocationId = id;
+                        switchTab(`${formIdPrefix}Creator`); populateForm(`${formIdPrefix}CreationForm`, item.rawData);
+                        setFormMode(modePrefix, 'edit', item.name); window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+            });
+            el.sceneActionTextarea.addEventListener('input', () => { el.durationWarningBar.classList.toggle('hidden', el.sceneActionTextarea.value.length <= DURATION_THRESHOLD); });
+            el.copyBtnId.addEventListener('click', () => { if(el.outputId.value) { navigator.clipboard.writeText(el.outputId.value); showToast('Prompt ID disalin!'); } });
+            el.copyBtnEn.addEventListener('click', () => { if(el.outputEn.value) { navigator.clipboard.writeText(el.outputEn.value); showToast('Prompt EN disalin!'); } });
+            const hairOptions = { pria: [ {value: 'pendek rapi', text: 'Pendek Rapi'}, {value: 'cepak', text: 'Cepak'}, {value: 'undercut', text: 'Undercut'}, {value: 'gondrong sebahu', text: 'Gondrong Sebahu'}, {value: 'botak', text: 'Botak'} ], wanita: [ {value: 'panjang lurus', text: 'Panjang Lurus'}, {value: 'panjang bergelombang', text: 'Panjang Bergelombang'}, {value: 'bob sebahu', text: 'Bob Sebahu'}, {value: 'pixie cut', text: 'Pixie Cut'}, {value: 'kuncir kuda', text: 'Kuncir Kuda'}, {value: 'sanggul', text: 'Sanggul'}] };
+            function updateFormForGender(gender) {
+                document.getElementById('facialHairContainer').classList.toggle('hidden', gender !== 'pria');
+                const hairSelect = document.getElementById('charHair'); const currentVal = hairSelect.value;
+                hairSelect.innerHTML = '<option value="">-- Gaya Rambut --</option>';
+                hairOptions[gender].forEach(opt => hairSelect.add(new Option(opt.text, opt.value)));
+                hairSelect.add(new Option('Lainnya...', 'other'));
+                if([...hairSelect.options].some(o => o.value === currentVal)) { hairSelect.value = currentVal; }
+            }
+            document.getElementById('charGender').addEventListener('change', e => updateFormForGender(e.target.value));
+            document.querySelectorAll('.feature-select').forEach(select => {
+                select.addEventListener('change', e => {
+                    const otherInput = e.target.closest('[data-dependency-container]').querySelector('.other-input');
+                    if (otherInput) otherInput.classList.toggle('hidden', e.target.value !== 'other');
+                    if (e.target.value !== 'other' && otherInput) otherInput.value = '';
+                });
+            });
+
+            // --- INITIALIZATION ---
+            function initializeApp() {
+                characters = JSON.parse(localStorage.getItem(CHAR_KEY) || '[]');
+                nonHumans = JSON.parse(localStorage.getItem(NH_KEY) || '[]');
+                locations = JSON.parse(localStorage.getItem(LOC_KEY) || '[]');
+                renderAllLists(); switchTab('characterCreator'); updateFormForGender('pria');
+            }
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
